@@ -31,7 +31,7 @@ public class Util {
                 setting.put(Environment.USER, USER_NAME);
                 setting.put(Environment.PASS, PASSWORD);
                 setting.put(Environment.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
-                setting.put(Environment.SHOW_SQL,true);
+                setting.put(Environment.SHOW_SQL, true);
                 configuration.setProperties(setting);
                 configuration.addAnnotatedClass(User.class);
                 ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
