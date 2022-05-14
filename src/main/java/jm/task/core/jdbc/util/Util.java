@@ -1,32 +1,46 @@
 package jm.task.core.jdbc.util;
 
+import jm.task.core.jdbc.model.User;
+import org.hibernate.HibernateException;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.Configuration;
+
+import com.mysql.cj.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Environment;
+import org.hibernate.service.ServiceRegistry;
+
 import java.sql.*;
+import java.util.Properties;
 
 public class Util {
     // реализуйте настройку соеденения с БД
-    private static Connection connection = null;
-    private static Statement statement = null;
-    private static final String userName = "root";
-    private static final String password = "root";
-    private static final String url = "jdbc:mysql://localhost:3306";
-    private static final String driver = "com.mysql.cj.jdbc.Driver";
+    private static SessionFactory sessionFactory;
+    private static final String USER_NAME = "root";
+    private static final String PASSWORD = "root";
+    private static final String URL = "jdbc:mysql://localhost:3306";
+    private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
 
-    public static Connection getConnection() {
+    public static SessionFactory getSessionFactory() {
         try {
-            Class.forName(driver);
-            if (connection == null || connection.isClosed()) {
-                connection = DriverManager.getConnection(url, userName, password);
-                Statement statement = connection.createStatement();
+            if (sessionFactory == null) {
+                Configuration configuration = new Configuration();
+                Properties setting = new Properties();
+                setting.put(Environment.DRIVER, DRIVER);
+                setting.put(Environment.URL, URL);
+                setting.put(Environment.USER, USER_NAME);
+                setting.put(Environment.PASS, PASSWORD);
+                setting.put(Environment.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
+                setting.put(Environment.SHOW_SQL,true);
+                configuration.setProperties(setting);
+                configuration.addAnnotatedClass(User.class);
+                ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
+                        .applySettings(configuration.getProperties()).build();
+                sessionFactory = configuration.buildSessionFactory(serviceRegistry);
             }
-            System.out.println("Соединение установлено");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+        } catch (HibernateException e) {
+            e.printStackTrace();
         }
-        return connection;
+        return sessionFactory;
     }
-
-
-
 }
